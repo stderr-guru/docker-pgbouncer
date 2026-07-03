@@ -238,8 +238,7 @@ _j=0
 while [ "${_j}" -lt "${_PGBOUNCER_WORKERS}" ]; do
   _j=$((_j + 1))
   mkdir -p "/var/run/pgbouncer/${_j}"
-  _peers_section="${_peers_section}
-${_j} = host=/var/run/pgbouncer/${_j}"
+  _peers_section="${_peers_section}\n${_j} = host=/var/run/pgbouncer/${_j}"
 done
 
 _pids=""
@@ -253,16 +252,13 @@ while [ "${_i}" -lt "${_PGBOUNCER_WORKERS}" ]; do
   printf '\nunix_socket_dir = /var/run/pgbouncer/%s\npeer_id = %s\nso_reuseport = 1\n\n%s\n' \
     "${_i}" "${_i}" "${_peers_section}" >> "${_worker_cfg}"
 
-  $1 "${_worker_cfg}" &
-  _worker_pid=$!
-  _pids="${_pids}${_pids:+ }${_worker_pid}"
-  echo "  worker ${_i}: PID ${_worker_pid}"
+  $1 "$_worker_cfg" &
+  _pids="$_pids $!"
+  echo "  worker $_i: PID $!"
 done
 
 _stop_workers() {
-  # shellcheck disable=SC2086
   kill ${_pids} 2>/dev/null
-  # shellcheck disable=SC2086
   wait ${_pids} 2>/dev/null
 }
 trap _stop_workers TERM INT
