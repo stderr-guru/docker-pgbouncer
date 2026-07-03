@@ -72,6 +72,16 @@ docker run --rm \
     edoburu/pgbouncer
 ```
 
+To enable `SO_REUSEPORT` (allows multiple pgbouncer processes to bind the same port, useful for multi-process deployments):
+
+```sh
+docker run --rm \
+    -e DATABASE_URL="postgres://user:pass@postgres-host/database" \
+    -e SO_REUSEPORT=1 \
+    -p 5432:5432 \
+    edoburu/pgbouncer
+```
+
 Kubernetes integration
 ----------------------
 
